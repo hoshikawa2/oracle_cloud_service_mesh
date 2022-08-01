@@ -1,0 +1,5 @@
+curl -vvv -i -k --cacert cacert.pem \
+     --key demo-client-private.pem \
+     --cert demo-client-certificate.pem \
+    https://helloworldtls
+

@@ -1,0 +1,60 @@
+---
+kind: IngressGateway
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: helloworld-ingress-gateway-tls
+  namespace: default
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaajp2gjl5ki2mhfnybw4foi2b7apv4khhyrkcjior23jsxbr47yvuq
+  mesh:
+    ref:
+      name: helloworldtls
+  hosts:
+    - name: helloworldtls
+      hostnames:
+        - "helloworldtls"
+#        - "helloworldtls:8082"
+#        - "*"
+      listeners:
+        - port: 8080
+          protocol: HTTP
+          tls:
+            mode: MUTUAL_TLS
+            serverCertificate:
+              ociTlsCertificate:
+                #certificateId: ocid1.certificate.oc1.iad.amaaaaaaihuwreyabbu3g4patim63tztwnnoljusv553puqos5lry5xitkca
+                certificateId: ocid1.certificate.oc1.iad.amaaaaaaihuwreyai5memoysx7igko3bmzkhkriolslqizicsvr5agage6oa #demo-ingress
+                #certificateId: ocid1.certificate.oc1.iad.amaaaaaaihuwreyaa4iivhbwb6n5e3nrayykymocxesv5t524qsg4z2llfgq #mesh-8bf2d437-2162-4612-b708-5332a2d5aacc
+            clientValidation:
+              trustedCaBundle:
+                ociCaBundle:
+                  caBundleId: ocid1.cabundle.oc1.iad.amaaaaaaihuwreyafexaxy5kwutz2jzahg3hhzl7iaxgd5ek4nrgalglz7yq
+#              subjectAlternateNames:
+#                - authorized1.client
+#                - authorized2.client
+#            mode: TLS
+#            mode: DISABLED
+  accessLogging:
+    isEnabled: true
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: IngressGatewayRouteTable
+metadata:
+  name: helloworld-ingress-gateway-route-table-tls
+  namespace: default
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaajp2gjl5ki2mhfnybw4foi2b7apv4khhyrkcjior23jsxbr47yvuq
+  name: helloworld-ingress-gateway-route-table-tls
+  ingressGateway:
+    ref:
+      name: helloworld-ingress-gateway-tls
+  routeRules:
+    - httpRoute:
+        ingressGatewayHost:
+          name: helloworldtls
+        destinations:
+          - virtualService:
+              ref:
+                name: ms-helloworldtls
+---
+
