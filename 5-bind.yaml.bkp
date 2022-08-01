@@ -1,0 +1,39 @@
+---
+kind: VirtualDeploymentBinding
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: ms-redis-binding
+  namespace: default
+spec:
+  virtualDeployment:
+    ref:
+      name: ms-redis
+      namespace: default
+ 
+  target:
+    service:
+      ref:
+        name: redis
+        namespace: default
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: IngressGatewayDeployment
+metadata:
+  name: redis-ingress-gateway-binding
+  namespace: default
+spec:
+  ingressGateway:
+    ref:
+      name: redis-ingress-gateway
+      namespace: default
+  deployment:
+    autoscaling:
+      minPods: 1
+      maxPods: 1
+  ports:
+    - protocol: TCP
+      port: 6379
+      serviceport: 6379
+  service:
+    type: LoadBalancer
+---

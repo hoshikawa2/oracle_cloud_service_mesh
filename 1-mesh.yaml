@@ -1,0 +1,14 @@
+---
+kind: Mesh
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: helloworldtls
+  namespace: default
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaajp2gjl5ki2mhfnybw4foi2b7apv4khhyrkcjior23jsxbr47yvuq
+  certificateAuthorities:
+    - id: ocid1.certificateauthority.oc1.iad.amaaaaaaihuwreya754t5qtlusnon6q6lsi6is3hk62gafn72xy54twe2nia
+  mtls:
+    minimum: STRICT
+#    minimum: PERMISSIVE
+#    minimum: DISABLED

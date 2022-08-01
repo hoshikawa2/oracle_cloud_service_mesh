@@ -1,0 +1,58 @@
+---
+kind: VirtualService
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: ms-helloworldtls
+  namespace: default
+spec:
+  mesh:
+    ref:
+      name: helloworldtls
+
+  defaultRoutingPolicy:
+    type: UNIFORM
+  mtls:
+#    mode: DISABLED
+#    mode: PERMISSIVE
+    mode: STRICT
+  compartmentId: ocid1.compartment.oc1..aaaaaaaajp2gjl5ki2mhfnybw4foi2b7apv4khhyrkcjior23jsxbr47yvuq
+  hosts:
+    - helloworld-service-tls:8080
+---
+kind: VirtualDeployment
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: ms-helloworldtls
+  namespace: default
+spec:
+  virtualService:
+    ref:
+      name: ms-helloworldtls
+  compartmentId: ocid1.compartment.oc1..aaaaaaaajp2gjl5ki2mhfnybw4foi2b7apv4khhyrkcjior23jsxbr47yvuq
+  listener:
+    - port: 8080
+      protocol: HTTP
+  accessLogging:
+    isEnabled: true
+  serviceDiscovery:
+    type: DNS
+    hostname: helloworld-service-tls
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: VirtualServiceRouteTable
+metadata:
+  name: ms-helloworld-route-table-tls
+  namespace: default
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaajp2gjl5ki2mhfnybw4foi2b7apv4khhyrkcjior23jsxbr47yvuq
+  virtualService:
+    ref:
+      name: ms-helloworldtls
+  routeRules:
+    - httpRoute:
+        destinations:
+          - virtualDeployment:
+              ref:
+                name: ms-helloworldtls
+            weight: 100
+---

@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: helloworld-service-tls
+  namespace: default
+  labels: 
+    app: helloworld-tls
+spec:
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  selector:
+#    servicemesh.oci.oracle.com/ingress-gateway-deployment: redis-ingress-gateway-binding
+    app: helloworld-tls
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: helloworld-tls
+  name: helloworld-tls
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helloworld-tls
+  template:
+    metadata:
+      labels:
+        app: helloworld-tls
+    spec:
+      containers:
+      - image: gcr.io/google-samples/node-hello:1.0
+        name: helloworld
+        ports:
+        - containerPort: 8080
+---
+

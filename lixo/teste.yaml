@@ -1,0 +1,151 @@
+---
+kind: Mesh
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: redis
+  namespace: default
+spec:
+  compartmentId: ocid1.tenancy.oc1..aaaaaaaarmf64ufoolro2kzrupzyazqycjapqsyacn7rju64jyw4zbyb6j6q
+  certificateAuthorities:
+    - id: ocid1.certificateauthority.oc1.iad.amaaaaaaihuwreyarlf5kyc3xyzhupk7xxd5yjs4s63b5ui7t5ec4pan3eaa
+  mtls:
+    minimum: DISABLED
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: redis
+    component: cache
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis
+  template:
+    metadata:
+      labels:
+        name: redis
+        component: cache
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        imagePullPolicy: Always
+        args: ["--requirepass", "$(REDIS_PASS)"]
+        ports:
+        - containerPort: 6379
+          name: redis
+        env:
+        - name: MASTER
+          value: "true"
+        - name: REDIS_PASS
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: REDIS_PASS
+---
+kind: IngressGateway
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: redis-ingress-gateway
+  namespace: default
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaajp2gjl5ki2mhfnybw4foi2b7apv4khhyrkcjior23jsxbr47yvuq
+  mesh:
+    ref:
+      name: redis
+  hosts:
+    - name: redis.default.svc.cluster.local
+      hostnames:
+        - redis.default.svc.cluster.local:6379
+      listeners:
+        - port: 6379
+          protocol: TCP
+          tls:
+            serverCertificate:
+              ociTlsCertificate:
+                certificateId: ocid1.certificate.oc1.iad.amaaaaaaihuwreya24alauqstwduwycqufhulrsx4zqmjvpssyt45fepcauq
+            mode: TLS
+  accessLogging:
+    isEnabled: true
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: IngressGatewayDeployment
+metadata:
+  name: redis-ingress-gateway-deployment
+  namespace: default
+spec:
+  ingressGateway:
+    ref:
+      name: redis-ingress-gateway
+      namespace: default
+  deployment:
+    autoscaling:
+      minPods: 1
+      maxPods: 1
+  ports:
+    - protocol: TCP
+      port: 6379
+      serviceport: 6379
+  service:
+    type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: default
+spec:
+  ports:
+  - port: 6379
+    targetPort: 6379
+    protocol: TCP
+    name: redis
+  selector:
+    servicemesh.oci.oracle.com/ingress-gateway-deployment: redis-ingress-gateway-deployment
+  type: LoadBalancer
+---
+kind: VirtualService
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: ms-redis
+  namespace: default
+spec:
+  mesh:
+    ref:
+      name: redis
+ 
+  defaultRoutingPolicy:
+    type: UNIFORM
+  compartmentId: ocid1.compartment.oc1..aaaaaaaajp2gjl5ki2mhfnybw4foi2b7apv4khhyrkcjior23jsxbr47yvuq
+ 
+  hosts:
+    - "redis.default.svc.cluster.local"
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: AccessPolicy
+metadata:
+  name: redis-access-policy      # Access Policy name
+  namespace: default
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaajp2gjl5ki2mhfnybw4foi2b7apv4khhyrkcjior23jsxbr47yvuq
+  name: redis-ap     # Access Policy name inside the mesh
+  description: This Access Policy
+  mesh:
+    ref:
+      name: redis
+  rules:
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: ms-redis
+      destination:
+        externalService:
+          httpExternalService:
+            hostnames: ["*"]
+            ports: [6379]
+---
+

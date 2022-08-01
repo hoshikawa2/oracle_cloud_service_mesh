@@ -1,0 +1,41 @@
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: VirtualDeploymentBinding
+metadata:
+  name: ms-helloworld-binding-tls
+  namespace: default
+  annotations:
+    servicemesh.oci.oracle.com/proxy-log-level: debug
+spec:
+  virtualDeployment:
+    id: >-
+      ocid1.meshvirtualdeployment.oc1.iad.amaaaaaaihuwreyam2rdw6x7w7lahk3nw2t5ovsl35sump44xpfxbetjthlq
+  target:
+    service:
+      ref:
+        name: helloworld-service-tls
+        namespace: default
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: IngressGatewayDeployment
+metadata:
+  name: helloworld-ingress-gateway-binding-tls
+  namespace: default
+  annotations:
+    servicemesh.oci.oracle.com/proxy-log-level: debug
+spec:
+  ingressGateway:
+    id: >-
+      ocid1.meshingressgateway.oc1.iad.amaaaaaaihuwreyapjrbbojrhsmetnydun6alfqvllyhzi2yfosolf3memza
+  deployment:
+    autoscaling:
+      minPods: 1
+      maxPods: 1
+    labels:
+      app: helloworld-tls
+  ports:
+    - protocol: TCP
+      serviceport: 443
+      port: 8080
+  service:
+    type: LoadBalancer

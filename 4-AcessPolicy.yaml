@@ -1,0 +1,37 @@
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: AccessPolicy
+metadata:
+  name: helloworld-access-policy-tls      # Access Policy name
+  namespace: default
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaajp2gjl5ki2mhfnybw4foi2b7apv4khhyrkcjior23jsxbr47yvuq
+  name: helloworld-ap-tls     # Access Policy name inside the mesh
+  description: This Access Policy
+  mesh:
+    ref:
+      name: helloworldtls
+  rules:
+    - action: ALLOW
+      source:
+        allVirtualServices: {}
+      destination:
+        allVirtualServices: {}
+    - action: ALLOW
+      source:
+        ingressGateway:
+          ref:
+            name: helloworld-ingress-gateway-tls
+      destination:
+        allVirtualServices: {}
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: ms-helloworldtls
+      destination:
+        externalService:
+          httpExternalService:
+            hostnames: ["helloworldtls"]
+            ports: [443]
+---
