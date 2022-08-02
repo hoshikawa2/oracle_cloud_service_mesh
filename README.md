@@ -124,8 +124,66 @@ Inicialmente, o novo cluster aparece no Console com o status de Criação. Quand
 
 O Container Engine for Kubernetes também cria um arquivo de configuração do Kubernetes kubeconfig que você usa para acessar o cluster usando o kubectl.
  
+# Criando um Vault
+
 # Criando um Certificado CA
-    
+
+O Service Mesh demanda a criação de um certificado do tipo CA (Certificate Authority) para associar seus certificados para autenticação (interna e externa - TLS ou mTLS).
+
+Clique no menu hambúrger e selecione a opção "Identity & Security" e depois "Certificates" conforme abaixo:
+
+![certiicate-ca-creation.png](https://github.com/hoshikawa2/repo-image/blob/master/certiicate-ca-creation.png?raw=true)
+
+Selecione então a opção "Certificate Authorities"
+
+![certificate-ca-creation-2.png](https://github.com/hoshikawa2/repo-image/blob/master/certificate-ca-creation-2.png?raw=true)
+
+Clique então no botão "Create Certificate" conforme abaixo:
+
+![certificates-ca-creation3.png](https://github.com/hoshikawa2/repo-image/blob/master/certificates-ca-creation3.png?raw=true)
+
+Preencha os campos da tela com:
+
+    Compartment: O nome do compartimento em que deseja armazenar os certificados
+    Root Certificate Authority: Esta opção irá criar internamente de forma automatizada seu certificado
+    Nome: O nome do CA
+    Descrição: A descrição do CA
+
+![ca-01.png](https://github.com/hoshikawa2/repo-image/blob/master/ca-01.png?raw=true)
+
+Clique em "Next" e preencha o campo "Common Name" como:
+
+    helloworldtls
+
+![ca-02.png](https://github.com/hoshikawa2/repo-image/blob/master/ca-02.png?raw=true)
+
+Clique em "Next" e preencha:
+
+    Not Valid Before: Com uma data posterior a data atual
+    Not Valid After: Com uma data que não ultrapasse mais de 2 meses
+    Vault: Selecione o Vault criado anteriormente
+    Key: Selecione sua chave criada anteriormente no Vault
+    Signing Algorithm: SHA256_WITH_RSA
+
+![ca-05.png](https://github.com/hoshikawa2/repo-image/blob/master/ca-05.png?raw=true)
+
+Aceite os valores oferecidos nesta tela
+
+![ca-06.png](https://github.com/hoshikawa2/repo-image/blob/master/ca-06.png?raw=true)
+
+E clique em "Next". Nesta próxima tela, clique na opção "Skip Revocation" e clique em "Next" novamente para ir à tela de cnofirmação final:
+
+![ca-07.png](https://github.com/hoshikawa2/repo-image/blob/master/ca-07.png?raw=true)
+
+Na tela final, clique no botão "Create Certificate Authority"
+
+![ca-08.png](https://github.com/hoshikawa2/repo-image/blob/master/ca-08.png?raw=true)
+
+Pronto! Você finalizou o processo de criação do "Certificado de Autoridade".
+
+
+
+
 # Criando o Service Mesh no OKE
 
 ### Pré-Requisitos
@@ -238,6 +296,11 @@ Para o próximo passo, você necessitará da linha de comando **kubectl** confor
 
 
 # Implantando um Service Mesh
+
+Com seu **kubectl** devidamente instalado, vamos configurar agora o arquivo YAML para criar seu Service Mesh.
+Para isto, você precisa alterar o "id" na seção "certificateAuthorities" com o OCID de seu certificado de autoridade criado anteriormente.
+
+
 
     ---
     kind: Mesh
