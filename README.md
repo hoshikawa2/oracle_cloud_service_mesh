@@ -350,8 +350,8 @@ O arquivo YAML abaixo permite que você possa configurar a forma de autenticar:
       defaultRoutingPolicy:
         type: UNIFORM
       mtls:
-    #    mode: DISABLED
-    #    mode: PERMISSIVE
+        #mode: DISABLED
+        #mode: PERMISSIVE
         mode: STRICT
       compartmentId:     ocid1.compartment.oc1..aaaaaaaajp2gjl5ki2mhfnybw4foi2b7apv4khhyrkcjior23jsxbr47yvuq
       hosts:
