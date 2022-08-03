@@ -295,7 +295,7 @@ Para o próximo passo, você necessitará da linha de comando **kubectl** confor
 
 
 
-# Implantando um Service Mesh
+# Implantando o Service Mesh
 
 Com seu **kubectl** devidamente instalado, vamos configurar agora o arquivo YAML para criar seu Service Mesh.
 Para isto, você precisa alterar o "id" na seção "certificateAuthorities" com o OCID de seu certificado de autoridade criado anteriormente.
@@ -317,10 +317,24 @@ Para isto, você precisa alterar o "id" na seção "certificateAuthorities" com 
     #    minimum: PERMISSIVE
     #    minimum: DISABLED
 
+Você pode acompanhar a criação dos recursos necessários para utilizar o service-mesh no OKE através da console da OCI.
+
+
 ![service-mesh-details-2.png](https://github.com/hoshikawa2/repo-image/blob/master/service-mesh-details-2.png?raw=true)
 
 
 # Criando um Virtual Service
+
+O próximo passo é a criação do Virtual Service. 
+Você precisará configurar o compartimento para poder criar o Virtual-Service, Virtual-Deployment e o Virtual-Service-Route-Table.
+Obtenha o OCID de seu compartimento para completar a configuração.
+
+O arquivo YAML abaixo permite que você possa configurar a forma de autenticar:
+
+* mTLS (já está configurado desta forma)
+* TLS
+* DISABLED (desabilitado)
+
 
     ---
     kind: VirtualService
